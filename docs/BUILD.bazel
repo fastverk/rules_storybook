@@ -1,0 +1,24 @@
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("@stardoc//stardoc:stardoc.bzl", "stardoc")
+
+package(default_visibility = ["//visibility:public"])
+
+stardoc(
+    name = "defs_doc",
+    out = "defs.md.generated",
+    input = "//storybook:defs.bzl",
+    deps = ["//storybook:defs_bzl"],
+)
+
+diff_test(
+    name = "defs_doc_up_to_date",
+    file1 = "defs.md",
+    file2 = ":defs_doc",
+)
+
+sh_binary(
+    name = "update",
+    srcs = ["update.sh"],
+    data = [":defs_doc"],
+)
