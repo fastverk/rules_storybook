@@ -1,12 +1,34 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["defs.bzl"])
+exports_files([
+    "defs.bzl",
+    "addon.bzl",
+    "build_driver.mjs",
+])
+
+# The internal shell-free `storybook build` driver. `storybook_build`'s private
+# `_driver` attr defaults to this js_binary and runs it via `ctx.actions.run`
+# over the real-file staged app tree.
+js_binary(
+    name = "build_driver",
+    entry_point = "build_driver.mjs",
+)
 
 bzl_library(
     name = "defs_bzl",
     srcs = ["defs.bzl"],
     visibility = ["//docs:__pkg__"],
-    deps = ["@rules_shell//shell:rules_bzl"],
+    deps = [
+        "@aspect_bazel_lib//lib:copy_to_directory",
+        "@rules_shell//shell:rules_bzl",
+    ],
+)
+
+bzl_library(
+    name = "addon_bzl",
+    srcs = ["addon.bzl"],
+    visibility = ["//docs:__pkg__"],
 )
