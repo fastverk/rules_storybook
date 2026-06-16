@@ -1,16 +1,38 @@
 module(
     name = "rules_storybook",
-    version = "0.1.0",
+    version = "0.2.0",
     compatibility_level = 1,
 )
 
-bazel_dep(name = "platforms", version = "0.0.10")
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+
+# `storybook_build` stages its srcs into a real-file TreeArtifact via
+# aspect_bazel_lib's `copy_to_directory_bin_action` before running the driver.
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 
 # `storybook_dev` macro builds a sh_binary that escapes the sandbox to
 # run Storybook's HMR dev server; consumers must have rules_shell, so
 # making it a regular (non-dev) dep keeps the load path simple.
-bazel_dep(name = "rules_shell", version = "0.4.1")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+
+# `storybook_build` runs the internal `:build_driver` js_binary as a build
+# action, and the `storybook_addon` macro emits `js_binary` + `bun_bundle`
+# targets. Consumers must already depend on aspect_rules_js (+ a node toolchain)
+# and rules_bun to wire those, so both are regular (non-dev) bazel_deps.
+bazel_dep(name = "aspect_rules_js", version = "3.1.2")
+bazel_dep(name = "rules_bun", version = "0.3.0")
+
+# Dev-only: a node toolchain so the ruleset's own builds (the `:build_driver`
+# js_binary + examples) resolve a hermetic Node. Consumers bring their own.
+bazel_dep(name = "rules_nodejs", version = "6.7.4", dev_dependency = True)
+
+node = use_extension(
+    "@rules_nodejs//nodejs:extensions.bzl",
+    "node",
+    dev_dependency = True,
+)
+node.toolchain(node_version = "22.11.0")
 
 # Dev-only: only loaded by docs/BUILD.bazel.
 bazel_dep(name = "stardoc", version = "0.7.2", dev_dependency = True)
