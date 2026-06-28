@@ -16,7 +16,7 @@ See [docs/defs.md](docs/defs.md) for the full rule reference.
 Add the registry to your `.bazelrc`:
 
 ```
-common --registry=https://raw.githubusercontent.com/fastverk/bazel-registry/main/
+common --registry=https://registry.fastverk.com/
 common --registry=https://bcr.bazel.build/
 ```
 
